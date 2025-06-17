@@ -12,7 +12,12 @@ function Initialize-MtSession {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'Module variables used in other functions.')]
     param()
 
-    $environment = (Get-MgContext).Environment
-
-    $__MtSession.AdminPortalUrl = Get-MtAdminPortalUrl -Environment $environment
+    # Only initialize Graph-specific settings if connected to Graph
+    $mgContext = Get-MgContext -ErrorAction SilentlyContinue
+    if ($mgContext) {
+        $environment = $mgContext.Environment
+        if ($environment) {
+            $__MtSession.AdminPortalUrl = Get-MtAdminPortalUrl -Environment $environment
+        }
+    }
 }

@@ -45,4 +45,14 @@ function Disconnect-Maester {
       Write-Verbose -Message "Disconnecting from Microsoft Teams."
       Disconnect-MicrosoftTeams
    }
+
+   if($__MtSession.Connections -contains "ActiveDirectory" -or $__MtSession.Connections -contains "All"){
+      Write-Verbose -Message "Disconnecting from Active Directory."
+      # Clear AD session state
+      $__MtSession.ADConnection = @{ Connected = $false }
+      # Clear AD default parameters
+      $PSDefaultParameterValues.Keys | Where-Object { $_ -like "Get-AD*:*" } | ForEach-Object {
+         $PSDefaultParameterValues.Remove($_)
+      }
+   }
 }

@@ -2,7 +2,6 @@
 .SYNOPSIS
     Validates the MgContext to ensure a valid connection to Microsoft Graph including the required permissions.
 #>
-
 function Test-MtContext {
     [CmdletBinding()]
     [OutputType([bool])]
@@ -13,11 +12,30 @@ function Test-MtContext {
 
         # If specified, the scope will be checked to send Teams channel messages.
         [Parameter(Mandatory = $false)]
-        [switch] $SendTeamsMessage
+        [switch] $SendTeamsMessage,
+
+        # If specified, validates Active Directory connection instead of Microsoft Graph
+        [Parameter(Mandatory = $false)]
+        [switch] $ActiveDirectory
     )
 
     $validContext = $true
-    if (-not ($context = Get-MgContext)) {
+    
+    # Check Active Directory context if specified
+    if ($ActiveDirectory) {
+        if (-not $__MtSession -or -not $__MtSession.ADConnection -or -not $__MtSession.ADConnection.Connected) {
+            $message = "Not connected to Active Directory. Please use 'Connect-MtActiveDirectory'. For more information, use 'Get-Help Connect-MtActiveDirectory'."
+            $validContext = $false
+        } else {
+            # Test if connection is still valid
+            try {
+                Get-ADDomain -ErrorAction Stop | Out-Null
+            } catch {
+                $message = "Active Directory connection is no longer valid. Please reconnect using 'Connect-MtActiveDirectory'."
+                $validContext = $false
+            }
+        }
+    } elseif (-not ($context = Get-MgContext)) {
         $message = "Not connected to Microsoft Graph. Please use 'Connect-Maester'. For more information, use 'Get-Help Connect-Maester'."
         $validContext = $false
     } else {

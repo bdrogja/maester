@@ -21,6 +21,8 @@ $__MtSession = @{
 	DnsCache = @()
 	ExoCache = @{}
 	OrcaCache = @{}
+	AdCache = @{}
+	ADConnection = @{ Connected = $false }
 }
 New-Variable -Name __MtSession -Value $__MtSession -Scope Script -Force
 

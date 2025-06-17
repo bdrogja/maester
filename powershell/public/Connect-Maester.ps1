@@ -104,7 +104,7 @@
       [string]$TeamsEnvironmentName = $null, #ToValidate: Don't use this parameter, this is the default.
 
       # The services to connect to such as Azure and EXO. Default is Graph.
-      [ValidateSet('All', 'Azure', 'ExchangeOnline', 'Graph', 'SecurityCompliance', 'Teams')]
+      [ValidateSet('All', 'ActiveDirectory', 'Azure', 'ExchangeOnline', 'Graph', 'SecurityCompliance', 'Teams')]
       [string[]]$Service = 'Graph',
 
       # The Tenant ID to connect to, if not specified the sign-in user's default tenant is used.
@@ -141,6 +141,16 @@
       } catch [Management.Automation.CommandNotFoundException] {
          Write-Host "`nThe Azure PowerShell module is not installed. Please install the module using the following command. For more information see https://learn.microsoft.com/powershell/azure/install-azure-powershell" -ForegroundColor Red
          Write-Host "`Install-Module Az.Accounts -Scope CurrentUser`n" -ForegroundColor Yellow
+      }
+   }
+
+   if ($Service -contains 'ActiveDirectory' -or $Service -contains 'All') {
+      Write-Verbose 'Connecting to Active Directory'
+      try {
+         Connect-MtActiveDirectory
+      } catch [Management.Automation.CommandNotFoundException] {
+         Write-Host "`nThe Active Directory PowerShell module is not installed. Please install RSAT. For more information see https://learn.microsoft.com/windows-server/remote/remote-server-administration-tools" -ForegroundColor Red
+         Write-Host "`nOn Windows 10/11: Add-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0`n" -ForegroundColor Yellow
       }
    }
 

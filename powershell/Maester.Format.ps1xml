@@ -78,6 +78,19 @@
                   }
                 </ScriptBlock>
               </ListItem>
+              <ListItem>
+                <Label>Active Directory</Label>
+                <ScriptBlock>
+                  if ($_.ActiveDirectory) {
+                    "Connected`n" +
+                    "Domain:       $($_.ActiveDirectory.DomainName)`n" +
+                    "DC:           $($_.ActiveDirectory.DomainController)`n" +
+                    "User:         $($_.ActiveDirectory.Credential)`n"
+                  } else {
+                    ''
+                  }
+                </ScriptBlock>
+              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>

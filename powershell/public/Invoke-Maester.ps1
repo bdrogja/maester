@@ -183,7 +183,15 @@ function Invoke-Maester {
 
         # Do not show the Maester logo.
         [Parameter(HelpMessage = 'Do not show the logo when starting Maester.')]
-        [switch] $NoLogo
+        [switch] $NoLogo,
+
+        # Include Active Directory tests (requires Connect-MtActiveDirectory)
+        [Parameter(HelpMessage = 'Include Active Directory tests. Requires connection via Connect-MtActiveDirectory.')]
+        [switch] $IncludeActiveDirectory,
+
+        # Skip the Active Directory connection check when running AD tests
+        [Parameter(HelpMessage = 'Skip Active Directory connection check.')]
+        [switch] $SkipActiveDirectoryConnect
     )
 
     function GetDefaultFileName() {
@@ -298,6 +306,23 @@ function Invoke-Maester {
         if (!(Test-MtContext -SendMail:$isMail -SendTeamsMessage:$isTeamsChannelMessage)) { return }
     }
 
+    # Check Active Directory connection if AD tests are requested
+    if ($IncludeActiveDirectory -and -not $SkipActiveDirectoryConnect) {
+        Write-Host "🔍 Checking Active Directory connection..." -ForegroundColor Cyan
+        try {
+            if (!(Test-MtContext -ActiveDirectory)) {
+                Write-Host "❌ Active Directory connection required for AD tests" -ForegroundColor Red
+                Write-Host "👉 Run Connect-MtActiveDirectory first" -ForegroundColor Yellow
+                return
+            }
+            Write-Host "✅ Active Directory connection verified" -ForegroundColor Green
+        } catch {
+            Write-Host "❌ Active Directory connection failed: $_" -ForegroundColor Red
+            Write-Host "👉 Run Connect-MtActiveDirectory first" -ForegroundColor Yellow
+            return
+        }
+    }
+
     # Initialize after graph connected
     Initialize-MtSession
 
@@ -330,6 +355,20 @@ function Invoke-Maester {
     # Only run CAWhatIf tests if explicitly requested
     if ("CAWhatIf" -notin $Tag) {
         $ExcludeTag += "CAWhatIf"
+    }
+
+    # Handle Active Directory tag inclusion
+    if ($IncludeActiveDirectory) {
+        if (-not $Tag) {
+            $Tag = @("AD")
+        } elseif ("AD" -notin $Tag) {
+            $Tag += "AD"
+        }
+    } else {
+        # Exclude AD tests by default unless explicitly included
+        if ("AD" -notin $Tag) {
+            $ExcludeTag += "AD"
+        }
     }
 
     # If $Tag is not set, run all tests except the ones with the tag "Full"

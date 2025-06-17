@@ -77,14 +77,14 @@ FormatsToProcess = @('Maester.Format.ps1xml')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-MtTestResultDetail',
-    'Clear-MtDnsCache', 'Clear-MtExoCache', 'Clear-MtGraphCache',
+    'Clear-MtAdCache', 'Clear-MtDnsCache', 'Clear-MtExoCache', 'Clear-MtGraphCache',
     'Compare-MtTestResult',
-    'Connect-Maester',
+    'Connect-Maester', 'Connect-MtActiveDirectory',
     'Convert-MtResultsToFlatObject', 'ConvertFrom-MailAuthenticationRecordDkim',
     'ConvertFrom-MailAuthenticationRecordDmarc', 'ConvertFrom-MailAuthenticationRecordMx',
     'ConvertFrom-MailAuthenticationRecordSpf',
     'Disconnect-Maester',
-    'Get-MailAuthenticationRecord', 'Get-MtAdminPortalUrl', 'Get-MtAuthenticationMethodPolicyConfig',
+    'Get-MailAuthenticationRecord', 'Get-MtAdConfiguration', 'Get-MtAdSecurityConfig', 'Get-MtAdminPortalUrl', 'Get-MtAuthenticationMethodPolicyConfig',
     'Get-MtConditionalAccessPolicy', 'Get-MtExo', 'Get-MtGraphScope', 'Get-MtGroupMember',
     'Get-MtHtmlReport', 'Get-MtLicenseInformation', 'Get-MtRole', 'Get-MtRoleMember', 'Get-MtSession',
     'Get-MtUser', 'Get-MtUserAuthenticationMethod', 'Get-MtUserAuthenticationMethodInfoByType',

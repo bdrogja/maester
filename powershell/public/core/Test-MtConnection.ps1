@@ -7,7 +7,7 @@
     Tests the connection for each service and returns $true if the session is connected to the specified service.
 
     .PARAMETER Service
-    The service to check the connection for. Valid values are 'All', 'Azure', 'ExchangeOnline', 'Graph', 'SecurityCompliance' (or 'EOP'), and 'Teams'. Default is 'All'.
+    The service to check the connection for. Valid values are 'All', 'ActiveDirectory', 'Azure', 'ExchangeOnline', 'Graph', 'SecurityCompliance' (or 'EOP'), and 'Teams'. Default is 'All'.
 
     .PARAMETER Details
     Return the full details of all connections instead of just a boolean value.
@@ -35,7 +35,7 @@
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', 'AvoidUsingWriteHost', Justification = 'Sending colorful output to host in addition to rich object output.')]
     param(
         # Checks if the current session is connected to the specified service
-        [ValidateSet('All', 'Azure', 'ExchangeOnline', 'EOP', 'Graph', 'SecurityCompliance', 'Teams')]
+        [ValidateSet('All', 'ActiveDirectory', 'Azure', 'ExchangeOnline', 'EOP', 'Graph', 'SecurityCompliance', 'Teams')]
         [Parameter(Position = 0)]
         [string[]]$Service = 'All',
 
@@ -47,6 +47,7 @@
     begin {
         $MtConnections = [PSCustomObject]@{
             PSTypeName  = 'Maester.Connections'
+            ActiveDirectory = $null
             Azure = $null
             Graph = $null
             ExchangeOnline = $null
@@ -138,6 +139,26 @@
             if (!$IsConnected) { $ConnectionState = $false }
         }
         #endregion Teams
+
+        #region Active Directory
+        if ($Service -contains 'ActiveDirectory' -or $Service -contains 'All') {
+            $IsConnected = $false
+            try {
+                if ($__MtSession.ADConnection -and $__MtSession.ADConnection.Connected) {
+                    # Test if connection is still valid
+                    Get-ADDomain -ErrorAction Stop | Out-Null
+                    $IsConnected = $true
+                    $MtConnections.ActiveDirectory = $__MtSession.ADConnection
+                }
+            } catch {
+                Write-Debug "Active Directory: $false"
+            }
+            Write-Verbose "Active Directory: $IsConnected"
+            if (!$IsConnected) { $ConnectionState = $false }
+        }
+        #endregion Active Directory
+
+
 
         if ($IsConnected) {
             $MtConnections.AllConnected = $true
