@@ -190,7 +190,13 @@
             }
 
             try {
-                $FlattenedResults | Export-Csv -Path $CsvFilePath -UseQuotes Always -NoTypeInformation
+                # Use -UseQuotes Always for PowerShell 7+, fallback for PowerShell 5.1
+                if ($PSVersionTable.PSVersion.Major -ge 7) {
+                    $FlattenedResults | Export-Csv -Path $CsvFilePath -UseQuotes Always -NoTypeInformation
+                } else {
+                    # PowerShell 5.1 compatibility - no UseQuotes parameter
+                    $FlattenedResults | Export-Csv -Path $CsvFilePath -NoTypeInformation
+                }
                 Write-Verbose "Exported the Maester test results to '$CsvFilePath'." -InformationAction Continue
             } catch {
                 Write-Error "Failed to export the Maester test results to a CSV file. $_"
